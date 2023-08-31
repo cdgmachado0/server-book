@@ -14,10 +14,23 @@ impl ThreadPool {
         ThreadPool
     }
 
+    pub fn build(size: usize) -> Result<ThreadPool, PoolCreationError> {
+        //creating this signature
+    }
+
     pub fn execute<F>(&self, f: F)
         where
             F: FnOnce() + Send + 'static,
     {
 
+    }
+}
+
+
+struct PoolCreationError; 
+
+impl PoolCreationError {
+    pub fn throw(&self) -> &'static str {
+        eprintln!("Thread pool not created");
     }
 }
