@@ -1,4 +1,8 @@
-pub struct ThreadPool;
+use std::thread;
+
+pub struct ThreadPool {
+    threads: Vec<thread::JoinHandle<()>>,
+}
 
 impl ThreadPool {
     /// Create a new ThreadPool.
@@ -15,7 +19,13 @@ impl ThreadPool {
     }
 
     pub fn build(size: usize) -> Result<ThreadPool, PoolCreationError> {
-        //creating this signature
+        if size > 0 {
+            // let mut threads = Vec::new();
+
+            Ok(ThreadPool)
+        } else {
+            Err(PoolCreationError)
+        }
     }
 
     pub fn execute<F>(&self, f: F)
@@ -27,10 +37,10 @@ impl ThreadPool {
 }
 
 
-struct PoolCreationError; 
+pub struct PoolCreationError; 
 
 impl PoolCreationError {
-    pub fn throw(&self) -> &'static str {
-        eprintln!("Thread pool not created");
+    pub fn throw(&self) -> String {
+        String::from("Thread pool not created")
     }
 }
