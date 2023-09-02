@@ -4,6 +4,7 @@ use std::{
 };
 
 /// Struct for implementing a multi-threaded pooling strategy.
+#[derive(Debug)]
 pub struct ThreadPool {
     workers: Vec<Worker>,
     sender: Option<mpsc::Sender<Job>>,
@@ -73,6 +74,7 @@ impl Drop for ThreadPool {
 }
 
 
+#[derive(Debug)]
 struct Worker {
     id: usize,
     thread: Option<JoinHandle<()>>,
@@ -99,10 +101,36 @@ impl Worker {
 }
 
 /// Error struct for when `ThreadPool` can't be created.
+#[derive(Debug)]
 pub struct PoolCreationError; 
 
 impl PoolCreationError {
     pub fn throw(&self) -> String {
         String::from("Thread pool not created")
     }
+}
+
+
+
+mod tests {
+    use super::*;
+
+    #[allow(dead_code)]
+    fn create_pool(num: usize) -> Result<ThreadPool, PoolCreationError> {
+        ThreadPool::build(num)
+    }
+
+    #[test]
+    fn success_pool_create() {
+        let pool = create_pool(4).unwrap();
+        assert_eq!(pool.workers.len(), 4);
+    }
+
+    #[test]
+    fn fail_pool_create() {
+        let err = create_pool(0).unwrap_err().throw();
+        assert_eq!(err, "Thread pool not created");
+    }
+
+
 }
