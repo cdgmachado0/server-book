@@ -124,6 +124,12 @@ mod tests {
     fn success_pool_create() {
         let pool = create_pool(4).unwrap();
         assert_eq!(pool.workers.len(), 4);
+
+        pool.workers.iter()
+            .for_each(|worker| {
+                let thread = &worker.thread;
+                assert_eq!(thread.as_ref().unwrap().is_finished(), false);
+            });
     }
 
     #[test]
