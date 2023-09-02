@@ -10,6 +10,7 @@ use std::{
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    
     let pool = ThreadPool::build(4).unwrap_or_else(|err| {
         eprintln!("Fail to create: {}", err.throw());
         process::exit(1);
