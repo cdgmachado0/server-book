@@ -3,6 +3,7 @@ use std::{
     sync::{mpsc, Arc, Mutex}
 };
 
+/// Struct for implementing a multi-threaded pooling strategy.
 pub struct ThreadPool {
     workers: Vec<Worker>,
     sender: Option<mpsc::Sender<Job>>,
@@ -16,7 +17,7 @@ impl ThreadPool {
     ///
     /// The size is the number of threads in the pool.
     ///
-    /// # Panics
+    /// # Error
     ///
     /// The `build` function will return a `PoolCreationError` struct if the size is zero.
     pub fn build(size: usize) -> Result<ThreadPool, PoolCreationError> {
@@ -40,6 +41,13 @@ impl ThreadPool {
         }
     }
 
+    /// Transmits a received job to the pool where all threads are, so the job gets ran.
+    /// 
+    /// `f` is the job to run acquired by a closure.
+    /// 
+    /// # Panics
+    /// 
+    /// Functions panics if the sender has been dropped or the channel has hung.
     pub fn execute<F>(&self, f: F)
         where
             F: FnOnce() + Send + 'static,
@@ -90,7 +98,7 @@ impl Worker {
     }
 }
 
-
+/// Error struct for when `ThreadPool` can't be created.
 pub struct PoolCreationError; 
 
 impl PoolCreationError {
