@@ -1,8 +1,14 @@
-use std::thread::{self, JoinHandle};
+use std::{
+    thread::{self, JoinHandle},
+    sync::mpsc,
+};
 
 pub struct ThreadPool {
     workers: Vec<Worker>,
+    sender: mpsc::Sender<Job>,
 }
+
+struct Job;
 
 impl ThreadPool {
     /// Create a new ThreadPool.
@@ -14,13 +20,15 @@ impl ThreadPool {
     /// The `build` function will return a `PoolCreationError` struct if the size is zero.
     pub fn build(size: usize) -> Result<ThreadPool, PoolCreationError> {
         if size > 0 {
+            let (sender, receiver) = mpsc::channel();
+
             let mut workers = Vec::with_capacity(size);
 
             for id in 0..size {
-                workers.push(Worker::new(id as u8));
+                workers.push(Worker::new(id));
             }   
 
-            Ok(ThreadPool { workers })
+            Ok(ThreadPool { workers, sender })
         } else {
             Err(PoolCreationError)
         }
@@ -34,13 +42,13 @@ impl ThreadPool {
     }
 }
 
-struct Worker { //private
-    id: u8,
+struct Worker {
+    id: usize,
     thread: JoinHandle<()>,
 }
 
 impl Worker {
-    fn new(id: u8) -> Self {
+    fn new(id: usize) -> Self {
         let thread = thread::spawn(|| {});
         Worker { id, thread }
     }
