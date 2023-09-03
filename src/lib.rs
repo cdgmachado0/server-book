@@ -67,7 +67,13 @@ impl Drop for ThreadPool {
             println!("Shutting down worker {}", worker.id);
 
             if let Some(thread) = worker.thread.take() {
-                thread.join().unwrap();
+                match thread.join() {
+                    Err(e) => {
+                        eprintln!("Thread {} couldn't finish: {:?}.", worker.id, e);
+                        continue;
+                    },
+                    _ => {}
+                }
             }
         }
     }
@@ -83,7 +89,7 @@ struct Worker {
 impl Worker {
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Self {
         let thread = thread::spawn(move|| loop {
-            let message = receiver.lock().unwrap().recv();
+            let message = receiver.lock().unwrap().recv(); 
 
             match message {
                 Ok(job) => {

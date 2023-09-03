@@ -20,7 +20,13 @@ fn main() {
     });
 
     for stream in listener.incoming().take(2) {
-        let stream = stream.unwrap();
+        let stream = match stream {
+            Ok(s) => s,
+            Err(e) => {
+                eprint!("Connection failed: {e}");
+                continue;
+            },
+        };
         
         pool.execute(|| {
             handle_connection(stream);
