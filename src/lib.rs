@@ -111,7 +111,7 @@ impl PoolCreationError {
 }
 
 
-
+#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -138,5 +138,18 @@ mod tests {
         assert_eq!(err, "Thread pool not created");
     }
 
+    #[test]
+    fn success_executes_job() {
+        let pool = create_pool(4).unwrap();
+        let job = || println!("hello world\n");
+        pool.execute(job);
+    }
 
+    #[test]
+    #[should_panic]
+    fn fail_panics_at_job() {
+        let pool = create_pool(4).unwrap();
+        let job = || panic!("Panic expected");
+        pool.execute(job);
+    }
 }
