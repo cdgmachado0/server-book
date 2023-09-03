@@ -55,7 +55,7 @@ impl ThreadPool {
     {
         let job = Box::new(f);
 
-        self.sender.as_ref().unwrap().send(job).unwrap();
+        self.sender.as_ref().unwrap().send(job).unwrap_or_else(|_| panic!("The receiver is disconnected"));
     }
 }
 
