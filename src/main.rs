@@ -19,7 +19,7 @@ fn main() {
         process::exit(1);
     });
 
-    for stream in listener.incoming().take(2) {
+    for stream in listener.incoming().take(2) { //listener.incoming().take(2)
         let stream = match stream {
             Ok(s) => s,
             Err(e) => {

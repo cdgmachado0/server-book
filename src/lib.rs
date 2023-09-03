@@ -72,7 +72,7 @@ impl Drop for ThreadPool {
                         eprintln!("Thread {} couldn't finish: {:?}.", worker.id, e);
                         continue;
                     },
-                    _ => {}
+                    _ => {},
                 }
             }
         }
