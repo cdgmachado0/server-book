@@ -1,4 +1,4 @@
-use my_server_book::ThreadPool;
+// use my_server_book::ThreadPool;
 use std::{
     fs,
     io::{prelude::*, BufReader},
@@ -7,6 +7,7 @@ use std::{
     time::Duration,
     process
 };
+use rusty_pool::ThreadPool;
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap_or_else(|err| {
@@ -14,12 +15,14 @@ fn main() {
         process::exit(1);
     });
 
-    let pool = ThreadPool::build(4).unwrap_or_else(|err| {
-        eprintln!("Fail to create: {}", err.throw());
-        process::exit(1);
-    });
+    // let pool = ThreadPool::build(4).unwrap_or_else(|err| {
+    //     eprintln!("Fail to create: {}", err.throw());
+    //     process::exit(1);
+    // });
 
-    for stream in listener.incoming().take(2) { //listener.incoming().take(2)
+    let pool = ThreadPool::new(4, 4, Duration::from_secs(60));
+
+    for stream in listener.incoming() { //listener.incoming().take(2)
         let stream = match stream {
             Ok(s) => s,
             Err(e) => {
@@ -34,6 +37,7 @@ fn main() {
     }
 
     println!("Shutting down.");
+    pool.shutdown_join();
 }
 
 
