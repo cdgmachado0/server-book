@@ -4,22 +4,23 @@ use std::{
 };
 
 use std::fmt::{self, Debug};
+use std::fs;
 
 /// Struct for implementing a multi-threaded pooling strategy.
 // #[derive(Debug)]
 pub struct ThreadPool {
     workers: Vec<Worker>,
     sender: Option<mpsc::Sender<Job>>,
-    stringify: Box<dyn Fn(&str) -> String + Send + 'static>,
+    // stringify: Box<dyn Fn(&str) -> String + Send + 'static>,
 }
 
-impl Debug for ThreadPool {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let cl = &self.stringify;
-        let param = "";
-        write!(f, "ThreadPool: {:?}, {:?}, {:?}", &self.workers, self.sender.as_ref().unwrap(), cl(param))
-    }
-}
+// impl Debug for ThreadPool {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         let cl = &self.stringify;
+//         let param = "";
+//         write!(f, "ThreadPool: {:?}, {:?}, {:?}", &self.workers, self.sender.as_ref().unwrap(), cl(param))
+//     }
+// }
 
 
 type Job = Box<dyn FnOnce() + Send + 'static>;
@@ -47,7 +48,7 @@ impl ThreadPool {
             Ok(ThreadPool { 
                 workers, 
                 sender: Some(sender),
-                stringify: Box::new(|str| String::from(str)),
+                // stringify: Box::new(|str| String::from(str)),
             })
         } else {
             Err(PoolCreationError)
@@ -69,7 +70,22 @@ impl ThreadPool {
 
         self.sender.as_ref().unwrap().send(job).unwrap_or_else(|_| panic!("The receiver is disconnected"));
     }
+
+    /// Stringifies an html page and sends the `stdout` to a separate file.
+    /// 
+    /// `s` is the html file name.
+    /// 
+    /// If it can't create/write the file, it writes to `stderr`.
+    pub fn stringify<'a>(&self, s: &'a str) {
+        let contents = fs::read_to_string(s).unwrap();
+
+        match fs::write("my-output.txt", contents) {
+            Ok(_) => {},
+            Err(_) => eprintln!("Couldn't write output"),
+        }
+    }
 }
+
 
 impl Drop for ThreadPool {
     fn drop(&mut self) {
