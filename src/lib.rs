@@ -3,11 +3,22 @@ use std::{
     sync::{mpsc, Arc, Mutex}
 };
 
+use std::fmt::{self, Debug};
+
 /// Struct for implementing a multi-threaded pooling strategy.
-#[derive(Debug)]
+// #[derive(Debug)]
 pub struct ThreadPool {
     workers: Vec<Worker>,
     sender: Option<mpsc::Sender<Job>>,
+    stringify: Box<dyn Fn(&str) -> String + Send + 'static>,
+}
+
+impl Debug for ThreadPool {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let cl = &self.stringify;
+        let param = "";
+        write!(f, "ThreadPool: {:?}, {:?}, {:?}", &self.workers, self.sender.as_ref().unwrap(), cl(param))
+    }
 }
 
 
@@ -35,7 +46,8 @@ impl ThreadPool {
 
             Ok(ThreadPool { 
                 workers, 
-                sender: Some(sender) 
+                sender: Some(sender),
+                stringify: Box::new(|str| String::from(str)),
             })
         } else {
             Err(PoolCreationError)

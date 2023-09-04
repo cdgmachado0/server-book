@@ -7,6 +7,7 @@ use std::{
     time::Duration,
     process
 };
+use std::fs;
 // use rusty_pool::ThreadPool;
 
 fn main() {
@@ -34,10 +35,16 @@ fn main() {
         pool.execute(|| {
             handle_connection(stream);
         });
-    }
+
+        // 
 
     println!("Shutting down.");
     // pool.shutdown_join();
+}
+
+fn print_file<'a>(file: &'a str) {
+    let contents = fs::read_to_string(file).unwrap();
+    fs::write("my-ouput.txt", contents);
 }
 
 
